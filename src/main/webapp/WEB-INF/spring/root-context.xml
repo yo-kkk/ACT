@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" 
+		p:driverClassName="oracle.jdbc.OracleDriver"
+		p:url="jdbc:oracle:thin:@211.238.142.120:1521:orcl"
+		p:username="ACT"
+		p:password="0625"-->	
+		
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/mydbcp"></property>
+	</bean>
+		
+	<!-- UserDAO start -->
+	<bean id="headEmpSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.models_dto" />
+	
+	<bean id="headEmpDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="headEmpSqlSession"
+		p:mapperInterface="com.project.act.models_dto.HeadEmpDAO" />
+	<!-- UserDAO end -->
+		
+	<!-- LoginDAO start -->
+	<bean id="loginSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.login" />
+	
+	<bean id="loginDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="loginSqlSession"
+		p:mapperInterface="com.project.act.login.LoginDAO" />
+	<!-- LoginDAO end -->
+	
+	<!-- StockDAO start -->
+	<bean id="stockSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.pos.stock" />
+	
+	<bean id="stockDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="stockSqlSession"
+		p:mapperInterface="com.project.act.pos.stock.StockDAO" />
+	<!-- StockDAO end -->
+	
+	<!-- ProductDAO start -->
+	<bean id="productSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.product" />
+	
+	<bean id="productDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="productSqlSession"
+		p:mapperInterface="com.project.act.head.product.ProductDAO" />
+	<!-- ProductDAO end -->	
+
+	<!-- StoreCommuteDAO start -->
+	<bean id="storeCommSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.commute" />
+	
+	<bean id="storeCommuteDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="storeCommSqlSession"
+		p:mapperInterface="com.project.act.store.commute.StoreCommuteDAO" />
+	<!-- StoreCommuteDAO end -->
+	
+	<!-- TransactDAO start -->
+	<bean id="transactSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.pos.transact" />
+	
+	<bean id="transactDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="transactSqlSession"
+		p:mapperInterface="com.project.act.pos.transact.TransactDAO" />
+	<!-- TransactDAO end -->
+	
+	<!-- RefundDAO start -->
+	<bean id="refundSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.pos.refund" />
+	
+	<bean id="refundDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="refundSqlSession"
+		p:mapperInterface="com.project.act.pos.refund.RefundDAO" />
+	<!-- RefundDAO end -->
+	
+	<!-- ClosingDAO start -->
+	<bean id="closingSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.pos.closing" />
+	
+	<bean id="closingDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="closingSqlSession"
+		p:mapperInterface="com.project.act.pos.closing.ClosingDAO" />
+	<!-- ClosingDAO end -->
+
+	<!-- FactoryDAO start -->
+	<bean id="FactorySqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.factory" />
+	
+	<bean id="FactoryDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="FactorySqlSession"
+		p:mapperInterface="com.project.act.head.factory.FactoryDAO" />
+	<!-- FactoryDAO end -->
+	
+	<!-- HeadGoalDAO start -->
+	<bean id="HeadGoalSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.goal" />
+	
+	<bean id="HeadGoalDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="HeadGoalSqlSession"
+		p:mapperInterface="com.project.act.head.goal.HeadGoalDAO" />
+	<!-- FactoryDAO end -->
+	
+		<!-- EventsDAO start -->
+	<bean id="EventsSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.events" />
+	
+	<bean id="EventsDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="EventsSqlSession"
+		p:mapperInterface="com.project.act.head.events.EventsDAO" />
+	<!-- EventsDAO end -->
+		
+	<!-- (file upload)Root Context: defines shared resources visible to all other web components -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		p:defaultEncoding="UTF-8"
+		p:maxUploadSize="10485760" />
+		
+	<!-- HeadOrderDAO start -->
+	<bean id="HeadOrderSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.headOrder" />
+	
+	<bean id="HeadOrderDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="HeadOrderSqlSession"
+		p:mapperInterface="com.project.act.head.headOrder.HeadOrderDAO" />
+	<!-- HeadOrderDAO end -->	
+	
+	<!-- StoreOrderDAO start -->
+	<bean id="StoreOrderSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.storeOrder" />
+	
+	<bean id="StoreOrderDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="StoreOrderSqlSession"
+		p:mapperInterface="com.project.act.store.storeOrder.StoreOrderDAO" />
+	<!-- StoreOrderDAO end -->		
+	
+	<!-- Daily_totalDAO start -->
+	<bean id="Daily_totalSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.daily_total" />
+	
+	<bean id="Daily_totalDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="Daily_totalSqlSession"
+		p:mapperInterface="com.project.act.store.daily_total.Daily_totalDAO" />
+	<!-- Daily_totalDAO end -->		
+	
+	<!-- Transact_listDAO(store) start -->
+	<bean id="Transact_listSqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.transact_list" />
+	
+	<bean id="Transact_listDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="Transact_listSqlSession"
+		p:mapperInterface="com.project.act.store.transact_list.Transact_listDAO" />
+	<!-- Transact_listDAO(store) end -->
+	
+	<!-- HeadSalaryDAO start -->
+	<bean id="HeadSalarySqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.salary" />
+	
+	<bean id="SalaryDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="HeadSalarySqlSession"
+		p:mapperInterface="com.project.act.head.salary.SalaryDAO" />
+	<!-- HeadSalaryDAO end -->
+	
+	<!-- DailyDAO(head) start -->
+	<bean id="DailySqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.daily" />
+	
+	<bean id="DailyDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="DailySqlSession"
+		p:mapperInterface="com.project.act.head.daily.DailyDAO" />
+	<!-- DailyDAO(head) end -->	
+	
+	<!-- Transact_view(head) start -->
+	<bean id="Transact_viewSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.head.transact_view" />
+	
+	<bean id="Transact_viewDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="Transact_viewSession"
+		p:mapperInterface="com.project.act.head.transact_view.Transact_viewDAO" />
+	<!-- Transact_view(head) end -->
+	
+	<!-- Curr_event(POS) start -->
+	<bean id="Curr_eventSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.pos.curr_event" />
+	
+	<bean id="Curr_eventDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="Curr_eventSession"
+		p:mapperInterface="com.project.act.pos.curr_event.Curr_eventDAO" />
+	<!-- Curr_event(POS) end -->
+	
+	<!-- StoreSalary start -->
+	<bean id="StoreSalary_viewSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.salary" />
+	
+	<bean id="StoreSalaryDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="StoreSalary_viewSession"
+		p:mapperInterface="com.project.act.store.salary.StoreSalaryDAO" />
+	<!-- StoreSalary end -->
+		<!-- StoreEmpDAO start -->
+	<bean id="StoreEmpSqlSession"
+		class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.emp" />
+
+	<bean id="StoreEmpDAO"
+		class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="StoreEmpSqlSession"
+		p:mapperInterface="com.project.act.store.emp.StoreEmpDAO" />
+	<!-- StoreEmpDAO end -->
+	
+	<!-- EventList(Store) start -->
+	<bean id="EventListSession" class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:typeAliasesPackage="com.project.act.store.eventList" />
+	
+	<bean id="EventListDAO" class="org.mybatis.spring.mapper.MapperFactoryBean"
+		p:sqlSessionFactory-ref="EventListSession"
+		p:mapperInterface="com.project.act.store.eventList.EventListDAO" />
+	<!-- EventList(Store) end -->
+	
+	<tx:annotation-driven/>
+					
+</beans>

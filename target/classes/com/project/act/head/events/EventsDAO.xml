@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.head.events.EventsDAO" >
+   
+	<select id="getEventList" parameterType="com.project.act.models_dto.PageDTO" resultType="com.project.act.models_dto.EventDTO"> 		
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+				   select	distinct event_code,event_name,to_char(start_date,'yyyy/mm/dd') as "start_date",to_char(end_date,'yyyy/mm/dd') as "end_date"
+    			   from    (select *  
+							  from  event)
+				) A ) B
+	WHERE  rnum between #{startNum} and #{endNum}
+	</select>
+	
+	<select id="list_count" resultType="long">
+	select count(distinct event_code)
+	from event
+	</select>
+	
+	<insert id="addEvents" parameterType="com.project.act.models_dto.EventDTO">
+		insert into event(event_code ,store_name ,product_code ,event_name ,start_date,end_date, discount_rate)
+		values(#{event_code},#{storesDTO.store_name},#{productDTO.product_code},#{event_name},to_date(#{start_date},'yyyy/mm/dd'),to_date(#{end_date},'yyyy/mm/dd'),#{discount_rate})
+	</insert>
+	
+	<!-- 	지점리스트  -->
+	<select id="getStoreList"  resultType="com.project.act.models_dto.StoresDTO"> 
+		select	store_name
+		from  stores
+	</select>
+	
+	<!-- 	상품리스트(페이징)  -->
+	<select id="getProductList" parameterType="map" resultType="com.project.act.models_dto.ProductDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+					select product_code,price 
+					from   product
+					where  product_code like  '%'||#{keyword}||'%'
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 	       	  
+	</select>
+	
+	<select id="get_total_count" parameterType="map" resultType="long">
+		select count(*)
+		from product
+		where product_code like  '%'||#{keyword}||'%' 		       	  
+	</select>
+	<select id="getE_Code" resultType="long">
+		select seq_event_code.nextval
+		from dual
+	</select>
+	<delete id="deleteEvent" parameterType="String">
+		delete from event
+		where event_name=#{event_name}
+	</delete>
+	
+	<select id="getTargetStoreMap"  resultType="com.project.act.models_dto.StoresDTO" parameterType="String"> 
+    select	distinct store_name
+    from    (select * from  event)
+	where event_name = #{event_name}
+	</select>
+	
+	<select id="getTargetProductMap"  resultType="com.project.act.models_dto.EventDTO" parameterType="String"> 
+    select	distinct a.product_code as "productDTO.product_code", a.discount_rate, b.price as "productDTO.price"
+    from    (select *  
+			from  event) a , product b
+	where a.product_code=b.product_code 
+	and a.event_name = #{event_name}
+	</select>
+	
+	<select id="select_store" parameterType="String" resultType="String">
+		select store_name
+		from stores
+		where location=#{location_code}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+      

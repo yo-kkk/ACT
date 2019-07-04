@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.store.salary.StoreSalaryDAO">
+	<select id="getMonthlySalaryList" parameterType="String" resultType="com.project.act.models_dto.Emp_salaryDTO">
+		select a.emp_id as "empDTO.emp_id", a.name as "empDTO.name" , a.salary as "empDTO.salary" , b.bs_month, b.monthly_salary
+		from employee a, emp_salary b
+		where a.emp_id= b.emp_id 
+		and a.position_code = 6
+        and a.store_name = (select store_name
+							from employee
+							where emp_id = #{emp_id})	
+	</select>
+	
+	
+	
+	<select id="getPartTimerCommuteList" parameterType="String" resultType="com.project.act.models_dto.CommuteDTO">
+		select emp_id as "empDTO.emp_id", name as "empDTO.name" , salary as "empDTO.salary"
+		from employee
+		where position_code = 6
+        and store_name = (select store_name
+							from employee
+							where emp_id = #{emp_id})	
+	</select>
+	
+	<select id="getSearchCommuteList" parameterType="com.project.act.models_dto.CommuteDTO" resultType="com.project.act.models_dto.CommuteDTO">
+		select 	e.name as "empDTO.name", e.emp_id as "empDTO.emp_id", to_char(c.work_date,'yyyy-mm-dd') as work_date, substr(c.start_time,0,5) as "start_time",
+				substr(c.end_time,0,5) as "end_time",
+				(to_date('2000-01-01 ' || substr(end_time,1,5)  || ':00', 'YYYY-MM-DD HH24:MI:SS') -
+          		to_date('2000-01-01 ' || substr(start_time,1,5) || ':00', 'YYYY-MM-DD HH24:MI:SS'))*24*60 as "work_minute"
+				, e.salary as "empDTO.salary"
+		from commute c , employee e
+		where c.emp_id = e.emp_id 
+			and	e.emp_id=#{empDTO.emp_id} 
+			and to_char(c.work_date,'yyyy-mm')=#{work_date}
+	</select>
+	
+	
+	
+	<insert id="payAlbalSalary" parameterType="com.project.act.models_dto.Emp_salaryDTO" >
+		insert into emp_salary(bs_month,emp_id,monthly_salary)
+		values(#{bs_month},#{empDTO.emp_id},#{monthly_salary})	
+	</insert>
+	
+	
+	<select id="list_pg" parameterType="map" resultType="com.project.act.models_dto.Emp_salaryDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+					select s.bs_month as "bs_month", s.emp_id as "empDTO.emp_id", s.monthly_salary as "monthly_salary", e.name as "empDTO.name"
+					from emp_salary s, employee e
+					where s.emp_id = e.emp_id 
+ 			     	  and e.store_name = #{store_name} 
+    			  	  and s.bs_month like #{when}||'%' 
+      				  and e.position_code = 6
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 
+	</select>
+	
+	
+	<select id="total_count" parameterType="map" resultType="long">
+		select count(*)
+		from emp_salary s, employee e
+		where s.emp_id = e.emp_id 
+      	  and e.store_name = #{store_name} 
+      	  and s.bs_month like #{when}||'%' 
+      	  and e.position_code = 6
+	</select>
+	
+</mapper>

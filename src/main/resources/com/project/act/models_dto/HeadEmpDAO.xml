@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.models_dto.HeadEmpDAO" >
+	
+	<!-- 사원등록 sql -->
+   <insert id="headEmpinsert" parameterType="EmployeeDTO">
+      insert into employee 
+          (EMP_ID,
+             EMP_PASSWORD,
+             NAME,
+             POSITION_CODE,
+             SALARY,
+             PHONE,
+             ADDRESS,
+             BIRTHDAY,
+             HIRE_DATE,
+             STORE_NAME)
+             
+      values(TO_CHAR(#{hire_date}, 'yymmdd')||NO_SEQ.NEXTVAL,
+               #{emp_password},
+               #{name},
+               #{positionDTO.position_code},
+               #{salary},
+               #{phone},
+               #{address},
+               #{birthday},
+               #{hire_date},
+               #{storeDTO.store_name} )
+		         
+		         <selectKey keyProperty="idx" resultType="int" order="AFTER"> 
+		         	SELECT NO_SEQ.CURRVAL  FROM dual 
+		         </selectKey>
+
+	</insert>
+	
+	<!-- 사원등록시 position에서 min_sal가지고 와서, empDTO의 직급 정보를 설정하기 위한 sql -->
+	<select id="getPositionInfo" parameterType="int" resultType="PositionDTO">
+		select name, min_sal
+		from position
+		where position_code = #{position_code_forminsal}
+	</select>
+	
+	<select id="getEmpList" resultType="EmployeeDTO"> 
+		select  e.emp_id,
+				e.emp_password,
+				e.name,
+				e.phone,
+				e.address,
+				e.birthday,
+				e.hire_date,
+				e.retire_date,
+				e.store_name AS "storeDTO.store_name",
+				e.salary,
+				p.position_code AS "positionDTO.position_code",
+				p.name AS "positionDTO.name"
+		FROM   employee e inner join position p
+		ON     e.position_code=p.position_code
+
+	</select>
+	
+	<select id="getRetireEmpList" resultType="EmployeeDTO"> 
+		select  a.emp_id,
+				a.emp_password,
+				a.name,
+				a.phone,
+				a.address,
+				a.birthday,
+				a.hire_date,
+				a.retire_date,
+				a.store_name AS "storeDTO.store_name",
+				a.salary,
+				p.position_code AS "positionDTO.position_code",
+				p.name AS "positionDTO.name"
+		from (select *
+				FROM   employee 
+		        where retire_date IS NOT NULL) a inner join position p
+		 ON  a.position_code=p.position_code
+	</select>
+	
+	<select id="getRetireEmpCnt" resultType="Long"> 
+				select count(*)
+				FROM   employee 
+		        where retire_date IS NOT NULL
+	</select>
+	
+	
+	<select id="getEmpInfo" parameterType="String" resultType="EmployeeDTO">
+	select e.emp_id,
+			e.emp_password,
+			e.name,
+			e.phone,
+			e.address,
+			e.birthday,
+			e.hire_date,
+			e.retire_date,
+			e.store_name AS "storeDTO.store_name",
+			e.salary,
+			p.position_code AS "positionDTO.position_code",
+			p.name AS "positionDTO.name",
+			s.store_name,
+			s.phone,
+			s.address,
+			s.location,
+			s.SUPERVISOR_ID AS "supervisorDTO.emp_id"
+	FROM employee e inner join stores s
+	  ON e.store_name=s.store_name
+		  inner join position p
+	  ON e.position_code = p.position_code
+	where e.emp_id=#{emp_id}
+	</select>
+	
+	<update id="updateEmpInfo" parameterType="EmployeeDTO">
+		UPDATE employee 
+			SET  NAME = #{name},
+	             SALARY = #{salary},
+	             PHONE = #{phone},
+	             ADDRESS = #{address},
+	             STORE_NAME = #{storeDTO.store_name}
+	        WHERE EMP_ID = #{emp_id}
+	</update>
+	
+	<update id="retireEmp" parameterType="EmployeeDTO">
+			UPDATE employee 
+			SET  retire_date = #{retire_date}
+	        WHERE EMP_ID = #{emp_id}
+	</update>
+	
+	<select id="paging">
+	    select B.*                                                                         
+		from (select rownum as rnum, A.*                                                   
+	 	 from (select emp_id,name,position_code,address,birthday,hire_date,retire_date,store_name,salary
+			from   employee                                                         
+			order  by emp_id desc) A ) B                                            
+		where rnum between * and *  ;         
+	</select>
+	
+		<select id="select_store" parameterType="String" resultType="String">
+		select store_name
+		from stores
+		where location=#{location_code}
+	</select>
+	
+	<select id="search" parameterType="map" resultType="EmployeeDTO">
+		SELECT		B.emp_id,
+					B."name",
+					B."positionDTO.position_code",
+					B."positionDTO.name",
+					B.address,
+					B.birthday,
+					B.hire_date,
+					B.retire_date,
+					B."storeDTO.store_name",
+					B.salary
+		FROM   (SELECT rownum as rnum, A.*	      					
+				FROM (select e.emp_id,
+							e.name AS "name",
+							e.position_code AS "positionDTO.position_code",
+							p.name AS "positionDTO.name",
+							e.address,
+							e.birthday,
+							e.hire_date,
+							e.retire_date,
+							e.store_name AS "storeDTO.store_name",
+							e.salary
+						from (SELECT *
+								FROM employee 
+								WHERE name like '%'||#{keyword}||'%' ) e inner join position p
+						  on e.POSITION_CODE = p.POSITION_CODE ) A ) B
+		WHERE  rnum between  #{pageDTO.startNum} and #{pageDTO.endNum}
+	</select>
+	
+	<select id="searchCnt" parameterType="map" resultType="Long">
+		SELECT count(*)
+		FROM employee
+		WHERE name like '%'||#{keyword}||'%' 
+	</select>
+	
+</mapper>

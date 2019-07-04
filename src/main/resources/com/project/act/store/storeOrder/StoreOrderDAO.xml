@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.store.storeOrder.StoreOrderDAO" >
+	<select id="getFromStoreToHeadOrder_list" parameterType="map" resultType="com.project.act.models_dto.Store_orderDTO">
+				SELECT  B.STORE_ORDER_CODE,
+			            B.ORDER_DATE,
+			            B.PRODUCT_CODE AS "productDTO.product_code",
+			            B.head_stock_quantity AS "productDTO.head_stock_quantity",
+			            B.STORE_NAME AS "storeDTO.store_name",
+			            B.QUANTITY,
+			            B.ORDER_DATE,
+			            B.SEND_YN,
+			            B.RECEIVE_YN,
+			            B.EMP_ID AS "empDTO.emp_id",
+			            B.name AS "empDTO.name"
+				from   (SELECT rownum as rnum, A.*             
+				               from  (select s.STORE_ORDER_CODE,
+				                                s.PRODUCT_CODE,
+				                                p.head_stock_quantity,
+				                                s.STORE_NAME,
+				                                s.QUANTITY,
+				                                s.RECEIVE_YN,
+				                                s.SEND_YN,
+				                                s.ORDER_DATE,
+				                                s.EMP_ID,
+				                                e.name
+				                        from (select *
+				                                 from store_order
+				                                 <choose>												
+												    <when test="store_name != null">
+				                                 	 where STORE_NAME = #{store_name}
+				                                 	  and product_code like '%'||#{keyword}||'%') s inner join employee e
+												    </when>
+												    <otherwise>
+												      where product_code like '%'||#{keyword}||'%') s inner join employee e
+												    </otherwise>
+												  </choose>										
+				                         on s.emp_id = e.emp_id
+				                         	inner join product p
+				                         on s.product_code = p.product_code) A ) B	            
+			WHERE  rnum between  #{pageDTO.startNum} and #{pageDTO.endNum}
+			ORDER BY STORE_ORDER_CODE DESC	
+	</select>
+	
+	<select id="getFromStoreToHeadOrder_cnt" parameterType="map" resultType="long">		
+		SELECT count(*)	          
+        from  (select *
+               from store_order
+                <choose>												
+				    <when test="store_name != null">
+                   	 where STORE_NAME = #{store_name}
+                   	 and 
+				    </when>
+				    <otherwise>
+				     where
+				    </otherwise>
+			   </choose>	
+			   	product_code like '%'||#{keyword}||'%')
+	</select>
+	
+	
+		<insert id="fromStoreToHeadOrder_basic" parameterType="com.project.act.models_dto.Store_orderDTO">	
+		insert into STORE_ORDER(STORE_ORDER_CODE,
+								PRODUCT_CODE,
+								STORE_NAME,
+								QUANTITY,
+								ORDER_DATE,
+								EMP_ID)
+		values(seq_store_order.nextval,
+			  #{productDTO.product_code},		 
+			  #{storeDTO.store_name},		 
+			  #{quantity},
+			  #{order_date},
+			  #{empDTO.emp_id}
+			 )
+		<selectKey keyProperty="store_order_code" order="AFTER" resultType="long" >
+			select seq_store_order.currval from dual
+		</selectKey>	
+	</insert>
+
+	
+	<insert id="fromStoreToHeadOrder_plus" parameterType="map">
+		insert into STORE_ORDER(STORE_ORDER_CODE,
+								PRODUCT_CODE,
+								STORE_NAME,
+								QUANTITY,
+								ORDER_DATE,
+								EMP_ID)
+		values(#{store_order_code},
+			  #{product_code},		 
+			  #{store_name},		 
+			  #{quantity},
+			  #{order_date},
+			  #{emp_id}
+			 )
+	</insert>
+	
+	<insert id="fromStoreToHeadOrder_single" parameterType="com.project.act.models_dto.Store_orderDTO">	
+		insert into STORE_ORDER(STORE_ORDER_CODE,
+								PRODUCT_CODE,
+								STORE_NAME,
+								QUANTITY,
+								ORDER_DATE,
+								EMP_ID)
+		values(seq_store_order.nextval,
+			  #{productDTO.product_code},		 
+			  #{storeDTO.store_name},		 
+			  #{quantity},
+			  #{order_date},
+			  #{empDTO.emp_id}
+			 )
+	</insert>
+	
+	<update id="updateReceiveStore" parameterType="com.project.act.models_dto.Store_orderDTO" >
+		update store_order set receive_yn = #{receive_yn} 
+		WHERE store_order_code = #{store_order_code}
+		AND product_code = #{productDTO.product_code}
+	</update>
+
+	<update id="updateStoreStock"
+		parameterType="com.project.act.models_dto.Store_orderDTO">
+		update store_stock
+		<choose>
+			<when test='receive_yn == "n"'>
+				set QUANTITY = QUANTITY - #{quantity}
+			</when>
+			<otherwise>
+				set QUANTITY = QUANTITY + #{quantity}
+			</otherwise>
+		</choose>
+		where STORE_NAME = #{storeDTO.store_name}
+		and product_code = #{productDTO.product_code}
+	</update>
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource 
+	    auth="Container" 
+	    driverClassName="oracle.jdbc.OracleDriver" 
+	    maxIdle="10" 
+	    maxTotal="20" 
+	    maxWaitMillis="-1" 
+	    name="jdbc/mydbcp" 
+	    password="0625" 
+	    type="javax.sql.DataSource" 
+	    url="jdbc:oracle:thin:@211.238.142.120:1521:orcl" 
+	    username="ACT"/>
+</Context>

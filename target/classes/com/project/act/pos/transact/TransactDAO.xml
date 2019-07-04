@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.pos.transact.TransactDAO">
+	
+	<select id="product_list" parameterType="map" resultType="com.project.act.models_dto.Store_stockDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+				   select a.product_code AS "productDTO.product_code",
+       					   b.price AS "productDTO.price",
+       					   a.quantity,
+       					   c.event_code AS "eventDTO.event_code",
+       					   c.event_name AS "eventDTO.event_name",
+       					   c.discount_rate AS "eventDTO.discount_rate"
+				   from   store_stock a
+				   join product b
+				   ON (a.product_code = b.product_code)
+				   left outer join event c
+				   ON (a.product_code = c.product_code
+    			   and a.store_name = c.store_name
+    			   and sysdate between c.start_date and c.end_date)
+				   where a.store_name = #{store_name}
+				   and a.product_code like '%'||#{keyword}||'%'
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 	       	  
+	</select>
+	
+	<select id="get_total_count" parameterType="map" resultType="long">
+	select count(*)
+	from store_stock
+	where store_name=#{store_name}
+	and    product_code like  '%'||#{keyword}||'%' 		       	  
+	</select>
+	
+	<insert id="transact_basic" parameterType="com.project.act.models_dto.TransactDTO">	
+	insert into transact(transaction_code,store_name,ages,sex,payment,trans_date,total_price,casher_id)
+	values(seq_transact_code.nextval,#{storeDTO.store_name},#{ages},#{sex},#{payment},#{trans_date},#{total_price},#{casher_id})
+	
+		<selectKey keyProperty="transaction_code" order="AFTER" resultType="String" >
+		select seq_transact_code.currval from dual
+		</selectKey>
+	
+	</insert>
+	
+	<insert id="transact_detail" parameterType="map">
+	insert into transact_detail(transaction_code,product_code,quantity,event_code)
+	values(#{transact_code}, #{product_code}, #{quantity},
+		   (select event_code
+			from event
+			where product_code = #{product_code}
+			and store_name = #{store_name}
+			and sysdate between start_date and end_date) )
+	</insert>
+	
+	<update id="transact_stock" parameterType="map">
+	update store_stock
+	set quantity = quantity - #{quantity}
+	where product_code = #{product_code}
+	and store_name = #{store_name}
+	</update>
+	
+	
+	
+</mapper>

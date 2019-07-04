@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.store.transact_list.Transact_listDAO">
+	
+	<select id="get_totalCount" parameterType="com.project.act.models_dto.TransactDTO" resultType="long">
+	select count(*)
+	from transact
+	where store_name = #{storeDTO.store_name}
+	and substr(trans_date,0,8) like #{trans_date}||'%'
+	</select>
+	
+	<select id="get_List" parameterType="com.project.act.models_dto.TransactDTO" resultType="com.project.act.models_dto.TransactDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   ( select transaction_code,trans_date,refund_yn,total_price,payment
+					 from transact
+					 where store_name = #{storeDTO.store_name}
+					 and substr(trans_date,0,8) like #{trans_date}||'%'
+					 order by 2 desc
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 
+	</select>
+	
+	<select id="get_detail" parameterType="long" resultType="com.project.act.models_dto.Transact_detailDTO">
+	select 	a.transaction_code AS "transactDTO.transaction_code",
+       		a.product_code AS "productDTO.product_code",
+       		a.quantity,
+       		b.price AS "productDTO.price",
+       		c.event_code AS "eventDTO.event_code",
+       		c.event_name AS "eventDTO.event_name",
+       		c.discount_rate AS "eventDTO.discount_rate"
+	from	transact_detail a
+	join    product b
+	on      (a.product_code = b.product_code)
+	join    transact d
+	on      (d.transaction_code = a.transaction_code)
+	left outer join event c
+	on      (a.event_code = c.event_code and
+       		 a.product_code = c.product_code and
+       		 c.store_name = d.store_name)
+	where a.transaction_code= #{transaction_code}
+	</select>
+	
+	<select id="search" parameterType="String" resultType="com.project.act.models_dto.TransactDTO">
+	select transaction_code,trans_date,total_price,payment,refund_yn
+	from transact
+	where transaction_code = #{keyword}
+	and store_name = #{store_name}  
+	</select>
+
+</mapper>

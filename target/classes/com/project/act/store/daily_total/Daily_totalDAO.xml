@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.store.daily_total.Daily_totalDAO">
+	
+	<select id="get_totalCount" parameterType="com.project.act.models_dto.Daily_incomeDTO" resultType="long">
+	select count(*) 
+	from daily_income
+	where store_name = #{storeDTO.store_name}
+	and to_char(bs_date,'yy-mm') like #{bs_date}||'%'
+	</select>
+	
+	<select id="get_List" parameterType="com.project.act.models_dto.Daily_incomeDTO" resultType="com.project.act.models_dto.Daily_incomeDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+					select to_char(a.bs_date,'yy/mm/dd') as "bs_date",a.total_income,a.reg_time,a.remain_cash,b.name as "closing_id"
+					from daily_income a, employee b
+					where a.store_name = #{storeDTO.store_name}
+					and a.closing_id=b.emp_id
+					and to_char(a.bs_date,'yy-mm') like #{bs_date}||'%'
+					order by 1 desc
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 
+	</select>
+
+</mapper>

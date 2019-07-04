@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.pos.stock.StockDAO">
+	
+	<select id="getStock_list" parameterType="map" resultType="com.project.act.models_dto.Store_stockDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+					select product_code AS "productDTO.product_code",
+					   	   quantity
+					from   store_stock
+					where  store_name = #{stockDTO.storeDTO.store_name}
+					and    product_code like  '%'||#{keyword}||'%'
+				) A ) B
+	WHERE  rnum between #{stockDTO.pageDTO.startNum} and #{stockDTO.pageDTO.endNum} 
+	</select>
+	
+	<select id="get_totalCount" parameterType="map" resultType="long">
+	select count(*)
+	from store_stock
+	where store_name=#{store_name}
+	and    product_code like  '%'||#{keyword}||'%'   
+	</select>
+	
+	<select id="getDetail" parameterType="String" resultType="com.project.act.models_dto.ProductDTO">
+		select p.PRODUCT_CODE,
+				p.PRODUCT_NAME,
+				p.MANUFACT_YEAR,
+				p.MANUFACT_SEAS,
+				p.SEX,
+				p.CATEGORY1,
+				p.CATEGORY2,
+				p.FIT,
+				p.COLOR,
+				p.SIZES,
+				p.FACTORY_CODE AS "factoryDTO.FACTORY_CODE",
+				p.REG_DATE,
+				p.SEASON_OFF,
+				p.HEAD_STOCK_QUANTITY,
+				p.IMG_NAME,
+				p.PRICE,
+				f.FACTORY_NAME AS "factoryDTO.FACTORY_NAME",
+				f.SUPERVISOR AS "factoryDTO.SUPERVISOR",
+				f.ADDRESS AS "factoryDTO.ADDRESS",
+				f.PHONE AS "factoryDTO.PHONE"					
+		from product p inner join factory f
+		on p.factory_code = f.factory_code
+		where p.product_code=#{product_code}
+	</select>
+	
+	<select id="getOther_store" parameterType="String" resultType="String">
+		select store_name
+		from stores
+		where location = (select location
+	       				  from   stores
+	                  	  where  store_name=#{store_name})
+	    and not store_name = #{store_name}              	  
+	</select>
+	
+		<select id="search" parameterType="map" resultType="com.project.act.models_dto.Store_stockDTO">
+		select product_code AS "productDTO.product_code",
+	       	   quantity
+		from   store_stock
+		where  store_name = #{store_name}
+		and    product_code like  '%'||#{word}||'%'           	  
+	</select>
+	
+</mapper>

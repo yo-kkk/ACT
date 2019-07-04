@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.head.salary.SalaryDAO" >
+   
+	<select id="getEventList"  resultType="com.project.act.models_dto.EventDTO"> 
+    select	distinct event_code,event_name,to_char(start_date,'yyyy/mm/dd') as "start_date",to_char(end_date,'yyyy/mm/dd') as "end_date"
+    from    (select *  
+			from  event)
+	</select>
+	
+	<select id="getMonthlyGoalList"  resultType="com.project.act.models_dto.Monthly_goalDTO"> 
+    select store_name AS "storesDTO.store_name", object_month, monthly_target, monthly_income, pay_yn
+	from  monthly_goal
+	where pay_yn='N'
+	</select>
+	
+	<select id="getTargetEmp" parameterType="String" resultType="com.project.act.models_dto.EmployeeDTO"> 
+		select emp_id 
+		from employee 
+		where store_name=#{storeName} 
+		and position_code between 1 and 4
+ 		
+	</select>
+	
+	
+	<select id="getTarget" parameterType="com.project.act.models_dto.Monthly_goalDTO" resultType="com.project.act.models_dto.Monthly_goalDTO"> 
+		select monthly_target, monthly_income
+		from monthly_goal 
+		where object_month=#{object_month} 
+		and store_name=#{storesDTO.store_name}		
+	</select>
+	
+	<insert id="insertBonus" parameterType="com.project.act.models_dto.Emp_salaryDTO">
+		insert into emp_salary(bs_month,emp_id,monthly_salary)
+		values	(#{bs_month},#{emp_id},#{monthly_salary})	
+	</insert>
+	<update id="updateYN" parameterType="com.project.act.models_dto.Monthly_goalDTO">
+		update monthly_goal
+		set pay_yn = 'y'
+		where store_name = #{storesDTO.store_name}
+			and object_month=#{object_month}
+	</update>
+	
+	<select id="getMonthlySalary" parameterType="String" resultType="long">
+		select salary
+		from employee
+		where emp_id =#{emp_id}
+	</select>
+
+	<select id="pastEmpSalaryList" resultType="com.project.act.models_dto.Emp_salaryDTO">
+		select a.bs_month as bs_month ,a.emp_id as "empDTO.emp_id", a.monthly_salary as monthly_salary ,b.salary as "empDTO.salary", b.name as "empDTO.name", b.store_name as "empDTO.storeDTO.store_name"
+		from emp_salary a , employee b
+		where a.emp_id = b.emp_id
+	</select>
+
+	<select id="list_pg" parameterType="map" resultType="com.project.act.models_dto.Emp_salaryDTO">
+	SELECT B.*
+	FROM   (SELECT rownum as rnum, A.*	
+        	FROM   (
+					select s.bs_month as "bs_month", s.emp_id as "empDTO.emp_id", s.monthly_salary as "monthly_salary", e.name as "empDTO.name"
+					from emp_salary s, employee e
+					where s.emp_id = e.emp_id 
+ 			     	  and e.store_name like #{store_name}||'%' 
+    			  	  and s.bs_month like #{when}||'%' 
+      				  and e.position_code = 6
+				) A ) B
+	WHERE  rnum between #{pageDTO.startNum} and #{pageDTO.endNum} 
+	</select>
+	
+	
+	<select id="total_count" parameterType="map" resultType="long">
+		select count(*)
+		from emp_salary s, employee e
+		where s.emp_id = e.emp_id 
+      	  and e.store_name like #{store_name}||'%' 
+      	  and s.bs_month like #{when}||'%' 
+      	  and e.position_code = 6
+	</select>
+	
+	<select id="select_store" parameterType="String" resultType="String">
+		select store_name
+		from stores
+		where location=#{location_code}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+      

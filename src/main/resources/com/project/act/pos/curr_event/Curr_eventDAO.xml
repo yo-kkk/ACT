@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.act.pos.curr_event.Curr_eventDAO">
+	<select id="getEvent_list" parameterType="String" resultType="com.project.act.models_dto.EventDTO">
+	select distinct event_code,
+		   event_name,
+		   to_char(start_date,'yy/mm/dd') AS "start_date",
+		   to_char(end_date,'yy/mm/dd') AS "end_date"
+	from event
+	where store_name = #{store_name}
+	and sysdate between start_date and end_date
+	</select>
+	
+	<select id="get_detail" parameterType="com.project.act.models_dto.EventDTO" resultType="com.project.act.models_dto.EventDTO">
+	select a.event_code,
+       a.event_name,
+       to_char(a.start_date,'yy/mm/dd') AS "start_date",
+       to_char(a.end_date,'yy/mm/dd') AS "end_date",
+       a.product_code AS "productDTO.product_code",
+       a.discount_rate,
+       b.price AS "productDTO.price"
+	from   event a, product b
+	where  event_code = #{event_code}
+	and store_name = #{storesDTO.store_name}
+	and a.product_code = b.product_code
+	</select>
+	
+	<select id="search_event" parameterType="map" resultType="com.project.act.models_dto.EventDTO">
+	select a.event_code,
+           a.product_code AS "productDTO.product_code",
+       	   a.event_name,
+           to_char(a.start_date,'yy/mm/dd') AS "start_date",
+       	   to_char(a.end_date,'yy/mm/dd') AS "end_date",
+           a.discount_rate,
+           b.price AS "productDTO.price"
+	from  event a, product b
+	where a.product_code like '%'||#{keyword}||'%'
+	and   a.store_name = #{store_name}
+	and   sysdate between a.start_date and a.end_date
+	and   a.product_code = b.product_code
+	</select>
+	
+</mapper>

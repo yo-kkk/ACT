@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<!-- 좌 menu /우 content /상 navbar /하 footer 템플릿 -->
+    <definition name="layout01" template="/WEB-INF/views/cmmn/01/default-layout.jsp">
+        <put-attribute name="left-menu" 	 value="" />    
+        <put-attribute name="top-menu" 		 value="/WEB-INF/views/cmmn/01/top-menu.jsp" />
+        <put-attribute name="content-header" value="/WEB-INF/views/cmmn/01/content-header.jsp" />
+        <put-attribute name="content" 		 value="" />
+        <put-attribute name="footer" 		 value="/WEB-INF/views/cmmn/01/footer.jsp" />
+    </definition>
+    <definition name="*/*.head" extends="layout01">
+        <put-attribute name="left-menu" 	 value="/WEB-INF/views/head/head-left-menu.jsp" />    
+        <put-attribute name="content" 		 value="/WEB-INF/views/head/{1}/{2}.jsp" />
+    </definition>
+    <definition name="*/*.store" extends="layout01">
+        <put-attribute name="left-menu" 	 value="/WEB-INF/views/store/store-left-menu.jsp" />    
+        <put-attribute name="content" 		 value="/WEB-INF/views/store/{1}/{2}.jsp" />
+    </definition>
+    <definition name="*/*.pos"   extends="layout01">
+        <put-attribute name="left-menu" 	 value="/WEB-INF/views/pos/pos-left-menu.jsp" />    
+        <put-attribute name="content" 		 value="/WEB-INF/views/pos/{1}/{2}.jsp" />
+    </definition>  
+    
+    <!-- Login 템플릿 -->
+   	<definition name="login" template="/WEB-INF/views/cmmn/02/layout.jsp">
+        <put-attribute name="top-menu" 		 value="/WEB-INF/views/cmmn/login/top-menu.jsp" />
+        <put-attribute name="content-header" value="/WEB-INF/views/cmmn/login/content-header.jsp" />
+        <put-attribute name="content" 		 value="" />        
+        <put-attribute name="footer" 		 value="/WEB-INF/views/cmmn/02/footer.jsp" />
+    </definition>
+    <definition name="*/*.login_tiles" extends="login">
+        <put-attribute name="content" 		 value="/WEB-INF/views/{1}/{2}.jsp" />
+    </definition>
+    
+    <!-- Intro 템플릿 -->
+   	<definition name="intro" template="/WEB-INF/views/cmmn/02/layout.jsp">
+        <put-attribute name="top-menu" 		 value="/WEB-INF/views/cmmn/intro/top-menu.jsp" />
+        <put-attribute name="content-header" value="/WEB-INF/views/cmmn/intro/content-header.jsp" />
+        <put-attribute name="content" 		 value="" />        
+        <put-attribute name="footer" 		 value="" />
+    </definition>
+    <definition name="*/*.intro_tiles" extends="intro">
+        <put-attribute name="content" 		 value="/WEB-INF/views/{1}/{2}.jsp" />
+        <put-attribute name="footer" 		 value="/WEB-INF/views/cmmn/intro/intro-footer.jsp" />
+    </definition>
+    
+    
+</tiles-definitions>
