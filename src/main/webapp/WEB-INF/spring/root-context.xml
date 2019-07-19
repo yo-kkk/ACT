@@ -9,7 +9,7 @@
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" 
 		p:driverClassName="oracle.jdbc.OracleDriver"
-		p:url="jdbc:oracle:thin:@211.238.142.120:1521:orcl"
+		p:url="jdbc:oracle:thin:@211.238.142.204:1521:orcl"
 		p:username="ACT"
 		p:password="0625"-->	
 		
